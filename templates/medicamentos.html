@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <h1 class="display-4 text-primary text-center">Lista de Medicamentos</h1>
+    <hr class="border-primary border-2">
+
+    <div class="text-center mb-4">
+        <a href="/medicamentos/adicionar" class="btn btn-outline-success btn-lg shadow-sm">Adicionar Novo Medicamento</a>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Quantidade</th>
+                <th>Preço</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for medicine in medicines %}
+            <tr>
+                <td>{{ medicine.id }}</td>
+                <td>{{ medicine.name }}</td>
+                <td>{{ medicine.quantity }}</td>
+                <td>R$ {{ "%.2f"|format(medicine.price) }}</td>
+                <td>
+                    <a href="/medicamentos/editar/{{ medicine.id }}" class="btn btn-outline-warning btn-sm shadow-sm">Editar</a>
+                    <a href="/medicamentos/deletar/{{ medicine.id }}" class="btn btn-outline-danger btn-sm shadow-sm">Deletar</a>
+                </td>   
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

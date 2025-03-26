@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <h1 class="display-4 text-primary text-center">Editar Medicamento</h1>
+    <hr class="border-primary border-2">
+
+    <form action="/medicamentos/editar/{{ medicine.id }}" method="POST">
+        <div class="form-group">
+            <label for="name">Nome</label>
+            <input type="text" id="name" name="name" class="form-control shadow-sm" value="{{ medicine.name }}" required>
+        </div>
+        <div class="form-group mt-3">
+            <label for="quantity">Quantidade</label>
+            <input type="number" id="quantity" name="quantity" class="form-control shadow-sm" value="{{ medicine.quantity }}" required>
+        </div>
+        <div class="form-group mt-3">
+            <label for="price">Preço</label>
+            <input type="number" id="price" name="price" class="form-control shadow-sm" value="{{ medicine.price }}" step="0.01" required>
+        </div>
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-outline-warning btn-lg shadow-sm">Salvar Alterações</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
