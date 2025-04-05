@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <h1 class="display-4 text-danger text-center">Excluir Venda</h1>
+    <hr class="border-danger border-2">
+
+    <div class="alert alert-warning text-center">
+        <p>Tem certeza de que deseja excluir esta venda?</p>
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">Detalhes da Venda</h5>
+                <p class="card-text">
+                    <strong>Cliente:</strong> {{ sale.client.name }}<br>
+                    <strong>Medicamento:</strong> {{ sale.medicine.name }}<br>
+                    <strong>Quantidade:</strong> {{ sale.quantity }}<br>
+                    <strong>Preço Total:</strong> R$ {{ "%.2f"|format(sale.total_price) }}<br>
+                    <strong>Data:</strong> {{ sale.sale_date.strftime('%d/%m/%Y %H:%M') }}
+                </p>
+            </div>
+        </div>
+        <form action="/vendas/deletar/{{ sale.id }}" method="POST" class="mt-3">
+            <button type="submit" class="btn btn-outline-danger btn-lg shadow-sm">Sim, excluir</button>
+            <a href="/vendas" class="btn btn-outline-secondary btn-lg shadow-sm">Cancelar</a>
+        </form>
+    </div>
+</div>
+
+{% endblock %} 

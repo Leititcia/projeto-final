@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <h1 class="display-4 text-primary text-center">Lista de Vendas</h1>
+    <hr class="border-primary border-2">
+    <div class="text-center mb-4">
+        <a href="/vendas/adicionar" class="btn btn-outline-success btn-lg shadow-sm">Nova Venda</a>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Medicamento</th>
+                <th>Quantidade</th>
+                <th>Preço Total</th>
+                <th>Data</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sale in sales %}
+            <tr>
+                <td>{{ sale.id }}</td>
+                <td>{{ sale.client.name }}</td>
+                <td>{{ sale.medicine.name }}</td>
+                <td>{{ sale.quantity }}</td>
+                <td>R$ {{ "%.2f"|format(sale.total_price) }}</td>
+                <td>{{ sale.sale_date.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>
+                    <button type="button" class="btn btn-outline-info btn-sm shadow-sm" 
+                            data-bs-toggle="modal" data-bs-target="#saleModal{{ sale.id }}">
+                        <i class="bi bi-eye"></i> Detalhes
+                    </button>
+                </td>
+            </tr>
+
+            <div class="modal fade" id="saleModal{{ sale.id }}" tabindex="-1" aria-labelledby="saleModalLabel{{ sale.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="saleModalLabel{{ sale.id }}">Detalhes da Venda #{{ sale.id }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-2 text-muted">Cliente</h6>
+                                    <p class="card-text">{{ sale.client.name }}</p>
+                                    
+                                    <h6 class="card-subtitle mb-2 text-muted">Medicamento</h6>
+                                    <p class="card-text">{{ sale.medicine.name }}</p>
+                                    
+                                    <h6 class="card-subtitle mb-2 text-muted">Quantidade</h6>
+                                    <p class="card-text">{{ sale.quantity }}</p>
+                                    
+                                    <h6 class="card-subtitle mb-2 text-muted">Preço Unitário</h6>
+                                    <p class="card-text">R$ {{ "%.2f"|format(sale.medicine.price) }}</p>
+                                    
+                                    <h6 class="card-subtitle mb-2 text-muted">Preço Total</h6>
+                                    <p class="card-text">R$ {{ "%.2f"|format(sale.total_price) }}</p>
+                                    
+                                    <h6 class="card-subtitle mb-2 text-muted">Data da Venda</h6>
+                                    <p class="card-text">{{ sale.sale_date.strftime('%d/%m/%Y %H:%M') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+.modal-content {
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 15px 15px 0 0;
+}
+
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    border-radius: 0 0 15px 15px;
+}
+
+.card {
+    border: none;
+    box-shadow: none;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-subtitle {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.card-text {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn-outline-info {
+    color: #0dcaf0;
+    border-color: #0dcaf0;
+}
+
+.btn-outline-info:hover {
+    color: #fff;
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+}
+</style>
+
+{% endblock content %} 

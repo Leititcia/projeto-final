@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/home.css">
+{% endblock %}
+
+{% block content %}
+    <!-- Seção de boas-vindas -->
+    <section class="welcome-section text-center py-5">
+        <div class="container">
+            <h2>Bem-vindo, {{ user.username }}!</h2>
+            <p>Você está logado no sistema de FarmAPI.</p>
+        </div>
+    </section>
+
+    <!-- Seção de Resumo -->
+    <section class="summary-section bg-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="summary-box text-center">
+                        <h4>Clientes Registrados</h4>
+                        <p>{{ total_clientes }}</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="summary-box text-center">
+                        <h4>Medicamentos no Estoque</h4>
+                        <p>{{ total_medicamentos }}</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="summary-box text-center">
+                        <h4>Total de Vendas</h4>
+                        <p>{{ total_vendas }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
