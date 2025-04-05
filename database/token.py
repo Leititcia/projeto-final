@@ -5,36 +5,49 @@ from database.auth_user import ALGORITHM, SECRET_KEY
 from sqlalchemy.orm import Session
 from database.database import get_db
 from jose import jwt, JWTError
+from datetime import datetime, timedelta
 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl='/login')
 
-def verify_token(request: Request, db: Session = Depends(get_db)):
-    # Tenta obter o token do cookie
-    token = request.cookies.get("access_token")
-    
-    # Se não encontrar no cookie, tenta obter pelo header Authorization
-    if not token:
-        auth_header = request.headers.get("Authorization")
-        if auth_header and auth_header.startswith("Bearer "):
-            token = auth_header.split(" ")[1]
-    
-    if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token não fornecido")
-    
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+async def verify_token(request: Request, db: Session):
     try:
-        # Decodifica o token; jwt.decode já verifica a expiração se o campo "exp" estiver presente
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
+        print("Iniciando verificação do token...") 
+        
+        token = request.cookies.get("access_token")
+        print(f"Token encontrado no cookie: {'Sim' if token else 'Não'}")
+        
+        if not token:
+            print("Token não encontrado") 
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token não fornecido")
+        
+        if token.startswith("Bearer "):
+            token = token.split(" ")[1]
+        
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username: str = payload.get("sub")
+            print(f"Token decodificado com sucesso para o usuário: {username}")
+        except JWTError as e:
+            print(f"Erro ao decodificar o token: {str(e)}")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido ou expirado")
+        
         if not username:
+            print("Username não encontrado no token")
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
         
-        # Busca o usuário no banco de dados
         user = db.query(UserModel).filter(UserModel.username == username).first()
         if not user:
+            print("Usuário não encontrado no banco")
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuário não encontrado")
         
-        # Retorna o objeto de usuário para ser usado nas rotas protegidas
         return user
-
-    except JWTError:
+    except Exception as e:
+        print(f"Erro na verificação do token: {str(e)}")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido ou expirado")

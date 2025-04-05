@@ -5,11 +5,11 @@ from app.config.config import settings
 
 URL_DATABASE = (
     f"postgresql://"
-    f"{settings.POSTGRES_USER}:"
-    f"{settings.POSTGRES_PASSWORD}@"
-    f"{settings.POSTGRES_HOST}:"
-    f"{settings.DATABASE_PORT}/"
-    f"{settings.POSTGRES_DB}"
+    f"{settings.DB_USER}:"
+    f"{settings.DB_PASSWORD}@"
+    f"{settings.DB_HOST}:"
+    f"{settings.DB_PORT}/"
+    f"{settings.DB_NAME}"
 )
 
 engine = create_engine(URL_DATABASE, echo=True)
