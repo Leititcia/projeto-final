@@ -1,0 +1,37 @@
+.summary-box {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.summary-box h4 {
+    color: #009970;
+    margin-bottom: 15px;
+}
+
+.summary-box p {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.card {
+    border: none;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-title {
+    color: #009970;
+}
+
+.display-6 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+}
