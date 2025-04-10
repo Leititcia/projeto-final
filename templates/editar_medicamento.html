@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <h1 class="display-4 text-primary text-center fw-semibold">Editar Medicamento</h1>
+    <hr class="border-primary border-2">
+
+    <div class="row justify-content-center">
+        <div class="col-md-11">
+            <form action="/medicamentos/editar/{{ medicine.id }}" method="POST">
+                <div class="row">
+                    <!-- Seção de Informações do Medicamento -->
+                    <div class="col-md-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">Informações do Medicamento</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="name" class="fw-semibold">Nome do Medicamento</label>
+                                    <input type="text" id="name" name="name" class="form-control shadow-sm" value="{{ medicine.name }}" required>
+                                </div>
+
+                                <div class="form-group mt-3">
+                                    <label for="generic_name" class="fw-semibold">Nome Genérico</label>
+                                    <input type="text" id="generic_name" name="generic_name" class="form-control shadow-sm" value="{{ medicine.generic_name }}" required>
+                                </div>
+
+                                <div class="form-group mt-3">
+                                    <label for="manufacturer" class="fw-semibold">Fabricante</label>
+                                    <input type="text" id="manufacturer" name="manufacturer" class="form-control shadow-sm" value="{{ medicine.manufacturer }}" required>
+                                </div>
+
+                                <div class="form-group mt-3">
+                                    <label for="type" class="fw-semibold">Tipo</label>
+                                    <select id="type" name="type" class="form-control shadow-sm" required>
+                                        <option value="">Selecione o tipo</option>
+                                        <option value="generico" {% if medicine.type == 'generico' %}selected{% endif %}>Genérico</option>
+                                        <option value="similar" {% if medicine.type == 'similar' %}selected{% endif %}>Similar</option>
+                                        <option value="marca" {% if medicine.type == 'marca' %}selected{% endif %}>De Marca</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group mt-3">
+                                    <label for="pharmaceutical_form" class="fw-semibold">Forma Farmacêutica</label>
+                                    <select id="pharmaceutical_form" name="pharmaceutical_form" class="form-control shadow-sm" required>
+                                        <option value="">Selecione a forma</option>
+                                        <option value="comprimido" {% if medicine.pharmaceutical_form == 'comprimido' %}selected{% endif %}>Comprimido</option>
+                                        <option value="capsula" {% if medicine.pharmaceutical_form == 'capsula' %}selected{% endif %}>Cápsula</option>
+                                        <option value="solucao" {% if medicine.pharmaceutical_form == 'solucao' %}selected{% endif %}>Solução</option>
+                                        <option value="suspensao" {% if medicine.pharmaceutical_form == 'suspensao' %}selected{% endif %}>Suspensão</option>
+                                        <option value="pomada" {% if medicine.pharmaceutical_form == 'pomada' %}selected{% endif %}>Pomada</option>
+                                        <option value="creme" {% if medicine.pharmaceutical_form == 'creme' %}selected{% endif %}>Creme</option>
+                                        <option value="gel" {% if medicine.pharmaceutical_form == 'gel' %}selected{% endif %}>Gel</option>
+                                        <option value="xarope" {% if medicine.pharmaceutical_form == 'xarope' %}selected{% endif %}>Xarope</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seção de Controle de Estoque -->
+                    <div class="col-md-6">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">Controle de Estoque</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="price" class="fw-semibold">Preço</label>
+                                    <input type="number" id="price" name="price" class="form-control shadow-sm" value="{{ medicine.price }}" step="0.01" required>
+                                </div>
+
+                                <div class="form-group mt-3">
+                                    <label for="lote" class="fw-semibold">Lote</label>
+                                    <input type="text" id="lote" name="lote" class="form-control shadow-sm" value="{{ medicine.lote }}" required>
+                                </div>
+
+                                <div class="form-group mt-3">
+                                    <label for="fabricacao" class="fw-semibold">Data de Fabricação</label>
+                                    <input type="date" id="fabricacao" name="fabricacao" class="form-control shadow-sm" value="{{ medicine.fabricacao }}" required>
+                                </div>
+
+                                <div class="form-group mt-3">
+                                    <label for="validade" class="fw-semibold">Data de Validade</label>
+                                    <input type="date" id="validade" name="validade" class="form-control shadow-sm" value="{{ medicine.validade }}" required>
+                                </div>
+
+                                <div class="form-group mt-3">
+                                    <label for="fornecedor" class="fw-semibold">Fornecedor</label>
+                                    <input type="text" id="fornecedor" name="fornecedor" class="form-control shadow-sm" value="{{ medicine.fornecedor }}" required>
+                                </div>
+
+                                <div class="form-group mt-3">
+                                    <label for="quantity" class="fw-semibold">Quantidade em Estoque</label>
+                                    <input type="number" id="quantity" name="quantity" class="form-control shadow-sm" value="{{ medicine.quantity }}" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                        <i class="bi bi-save me-2"></i>Salvar Alterações
+                    </button>
+                    <a href="/medicamentos" class="btn btn-outline-secondary btn-lg shadow-sm ms-2">
+                        <i class="bi bi-x-circle me-2"></i>Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

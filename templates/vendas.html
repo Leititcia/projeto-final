@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <h1 class="display-4 text-primary text-center fw-semibold">Vendas</h1>
+    <hr class="border-primary border-2">
+    <div class="text-center mb-4">
+        <a href="/vendas/adicionar" class="btn btn-outline-success btn-lg shadow-sm">Nova Venda</a>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Itens</th>
+                <th>Preço Total</th>
+                <th>Data</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.client.name }}</td>
+                <td>{{ order.items|length }} medicamento(s)</td>
+                <td>R$ {{ "%.2f"|format(order.total_price) }}</td>
+                <td>{{ order.order_date.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>
+                    <button type="button" class="btn btn-outline-info btn-sm shadow-sm" 
+                            data-bs-toggle="modal" data-bs-target="#orderModal{{ order.id }}">
+                        <i class="bi bi-eye"></i> Detalhes
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modais de detalhes (fora da tabela) -->
+{% for order in orders %}
+<div class="modal fade" id="orderModal{{ order.id }}" tabindex="-1" aria-labelledby="orderModalLabel{{ order.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderModalLabel{{ order.id }}">Detalhes do Pedido #{{ order.id }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Cliente</h6>
+                        <p class="card-text">{{ order.client.name }}</p>
+                        
+                        <h6 class="card-subtitle mb-2 text-muted">Data do Pedido</h6>
+                        <p class="card-text">{{ order.order_date.strftime('%d/%m/%Y %H:%M') }}</p>
+                    </div>
+                </div>
+                
+                <h6 class="mb-3">Itens do Pedido</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Medicamento</th>
+                                <th>Quantidade</th>
+                                <th>Preço Unitário</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items %}
+                            <tr>
+                                <td>{{ item.medicine.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>R$ {{ "%.2f"|format(item.price) }}</td>
+                                <td>R$ {{ "%.2f"|format(item.quantity * item.price) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold">
+                                <td colspan="3" class="text-end">Total:</td>
+                                <td>R$ {{ "%.2f"|format(order.total_price) }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<style>
+.modal-content {
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 15px 15px 0 0;
+}
+
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    border-radius: 0 0 15px 15px;
+}
+
+.card {
+    border: none;
+    box-shadow: none;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-subtitle {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.card-text {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn-outline-info {
+    color: #0dcaf0;
+    border-color: #0dcaf0;
+}
+
+.btn-outline-info:hover {
+    color: #fff;
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+}
+</style>
+
+{% endblock content %} 
