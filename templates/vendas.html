@@ -9,6 +9,7 @@
         <a href="/vendas/adicionar" class="btn btn-outline-success btn-lg shadow-sm">Nova Venda</a>
     </div>
 
+    {% include "filter.html" %}
     <table class="table table-striped">
         <thead>
             <tr>
@@ -17,7 +18,7 @@
                 <th>Itens</th>
                 <th>Preço Total</th>
                 <th>Data</th>
-                <th>Ações</th>
+                <th style="width: 0px;">Ações</th>
             </tr>
         </thead>
         <tbody>
@@ -28,7 +29,7 @@
                 <td>{{ order.items|length }} medicamento(s)</td>
                 <td>R$ {{ "%.2f"|format(order.total_price) }}</td>
                 <td>{{ order.order_date.strftime('%d/%m/%Y %H:%M') }}</td>
-                <td>
+                <td style="white-space: nowrap">
                     <button type="button" class="btn btn-outline-info btn-sm shadow-sm" 
                             data-bs-toggle="modal" data-bs-target="#orderModal{{ order.id }}">
                         <i class="bi bi-eye"></i> Detalhes

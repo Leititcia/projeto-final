@@ -1,12 +1,14 @@
 from app.models import models
+from app.routes.utils import getPagination
 from database.token import verify_token
 from fastapi import APIRouter, HTTPException, status, Depends, Request, Form
 from sqlalchemy.orm import Session
 from fastapi.templating import Jinja2Templates
 from database.database import get_db
 from fastapi.responses import RedirectResponse, HTMLResponse
-from datetime import datetime, timedelta
 import json
+from sqlalchemy import or_, cast
+from sqlalchemy.types import String
 
 router = APIRouter()
 
@@ -14,20 +16,28 @@ templates = Jinja2Templates(directory="templates")
 
 # vendas
 @router.get("/vendas", response_class=HTMLResponse)
-async def vendas(request: Request, db: Session = Depends(get_db)):
+async def vendas(request: Request, search: str = "", db: Session = Depends(get_db)):
     user = await verify_token(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="Usuário não autenticado")
     
-    # Obter pedidos em vez de vendas individuais
-    orders = db.query(models.Order).order_by(models.Order.order_date.desc()).all()
-    
-    # Ajustar o fuso horário para cada pedido
-    for order in orders:
-        # Adicionar 3 horas para converter de UTC para UTC-3 (Brasil)
-        order.order_date = order.order_date + timedelta(hours=3)
-    
-    return templates.TemplateResponse("vendas.html", {"request": request, "orders": orders})
+    # criando query
+    query = db.query(models.Order).join(models.Order.client).order_by(models.Order.order_date.desc())
+
+
+    # aplicando filtro de pesquisa na query
+    if(search):
+        query = query.filter(
+            or_(
+                models.Client.name.ilike(f"%{search}%"),
+                cast(models.Order.id, String).ilike(f"%{search}%"),
+            )
+        )
+
+    # passando a query para a funcao que pega os dados e a paginacao
+    orders, pagination = getPagination(query, request)
+
+    return templates.TemplateResponse("vendas.html", {"request": request, "pagination": pagination, "orders": orders})
 
 @router.get("/vendas/adicionar", response_class=HTMLResponse)
 async def add_sale_form(request: Request, db: Session = Depends(get_db)):

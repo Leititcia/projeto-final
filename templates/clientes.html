@@ -9,6 +9,7 @@
         <a href="/clientes/adicionar" class="btn btn-outline-success btn-lg shadow-sm">Adicionar Novo Cliente</a>
     </div>
 
+    {% include "filter.html" %}
     <table class="table table-striped">
         <thead>
             <tr>
@@ -16,6 +17,7 @@
                 <th>Nome</th>
                 <th>Email</th>
                 <th>Telefone</th>
+                <th style="width: 0px;"></th>
             </tr>
         </thead>
         <tbody>
@@ -25,7 +27,7 @@
                 <td>{{ client.name }}</td>
                 <td>{{ client.email }}</td>
                 <td>{{ client.phone or 'Não informado' }}</td>
-                <td>
+                <td style="white-space: nowrap">
                     <a href="/clientes/editar/{{ client.id }}" class="btn btn-outline-warning btn-sm shadow-sm">
                         <i class="bi bi-pencil"></i> Editar
                     </a>
@@ -37,6 +39,7 @@
             {% endfor %}
         </tbody>
     </table>
+    {% include "pagination.html" %}
 </div>
 
 {% endblock content %}

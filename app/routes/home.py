@@ -20,7 +20,7 @@ async def home_page(request: Request, db: Session = Depends(get_db)):
         # resumo total
         total_clientes = db.query(func.count()).select_from(models.Client).scalar()
         total_medicamentos = db.query(func.count()).select_from(models.Medicine).scalar()
-        total_vendas = db.query(func.count()).select_from(models.Sale).scalar()
+        total_vendas = db.query(func.count()).select_from(models.Order).scalar()
         
         return templates.TemplateResponse(
             "home.html",

@@ -1,4 +1,5 @@
 from app.models import models
+from app.routes.utils import getPagination
 from database.token import verify_token
 from fastapi import APIRouter, HTTPException, status, Depends, Request, Form
 from sqlalchemy.orm import Session
@@ -7,6 +8,8 @@ from fastapi.templating import Jinja2Templates
 from app.schemas import schemas
 from database.database import get_db
 from fastapi.responses import RedirectResponse, HTMLResponse
+from sqlalchemy import or_, cast
+from sqlalchemy.types import String
 
 router = APIRouter()
 
@@ -14,12 +17,27 @@ templates = Jinja2Templates(directory="templates")
 
 # medicamentos
 @router.get("/medicamentos", response_class=HTMLResponse)
-async def medicamentos(request: Request, db: Session = Depends(get_db)):
+async def medicamentos(request: Request, search: str = "", db: Session = Depends(get_db)):
     user = await verify_token(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="Usuário não autenticado")
-    medicines = db.query(models.Medicine).all()
-    return templates.TemplateResponse("medicamentos.html", {"request": request, "medicines": medicines})
+    
+    # criando query
+    query = db.query(models.Medicine)
+
+    # aplicando filtro de pesquisa na query
+    if(search):
+        query = query.filter(
+            or_(
+                models.Medicine.name.ilike(f"%{search}%"),
+                cast(models.Medicine.id, String).ilike(f"%{search}%"),
+            )
+        )
+
+    # passando a query para a funcao que pega os dados e a paginacao
+    medicines, pagination = getPagination(query, request)
+
+    return templates.TemplateResponse("medicamentos.html", {"request": request, "medicines": medicines, "pagination": pagination})
 
 @router.get("/medicamentos/adicionar", response_class=HTMLResponse)
 async def add_medicine_form(request: Request, db: Session = Depends(get_db)):

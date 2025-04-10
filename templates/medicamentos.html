@@ -9,7 +9,8 @@
         <a href="/medicamentos/adicionar" class="btn btn-outline-success btn-lg shadow-sm">Adicionar Novo Medicamento</a>
     </div>
 
-    <div class="table-responsive">
+    {% include "filter.html" %}
+    <div>
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -17,7 +18,7 @@
                     <th>Nome</th>
                     <th>Quantidade</th>
                     <th>Preço</th>
-                    <th></th>
+                    <th style="width: 0px;"></th>
                 </tr>
             </thead>
             <tbody>
@@ -27,18 +28,118 @@
                     <td>{{ medicine.name }}</td>
                     <td>{{ medicine.quantity }}</td>
                     <td>R$ {{ "%.2f"|format(medicine.price) }}</td>
-                    <td>
+                    <td style="white-space: nowrap">
+                        <button type="button" class="btn btn-outline-info btn-sm shadow-sm" 
+                                data-bs-toggle="modal" data-bs-target="#medicineModal{{ medicine.id }}">
+                            <i class="bi bi-eye"></i> Detalhes
+                        </button>
                         <a href="/medicamentos/editar/{{ medicine.id }}" class="btn btn-outline-warning btn-sm shadow-sm">
                             <i class="bi bi-pencil"></i> Editar
-                        </a>
-                        <a href="/medicamentos/deletar/{{ medicine.id }}" class="btn btn-outline-danger btn-sm shadow-sm">
-                            <i class="bi bi-trash"></i> Deletar
                         </a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% include "pagination.html" %}
     </div>
 </div>
+
+{% for medicine in medicines %}
+<div class="modal fade" id="medicineModal{{ medicine.id }}" tabindex="-1" aria-labelledby="medicineModalLabel{{ medicine.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="medicineModalLabel{{ medicine.id }}">Detalhes do Medicamento #{{ medicine.id }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Informações do Medicamento -->
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">Informações do Medicamento</h6>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Nome:</strong> {{ medicine.name }}</p>
+                                <p><strong>Nome Genérico:</strong> {{ medicine.generic_name }}</p>
+                                <p><strong>Fabricante:</strong> {{ medicine.manufacturer }}</p>
+                                <p><strong>Tipo:</strong> {{ medicine.type|title }}</p>
+                                <p><strong>Forma Farmacêutica:</strong> {{ medicine.pharmaceutical_form|title }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Controle de Estoque -->
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0">Controle de Estoque</h6>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Preço:</strong> R$ {{ "%.2f"|format(medicine.price) }}</p>
+                                <p><strong>Quantidade em Estoque:</strong> {{ medicine.quantity }}</p>
+                                <p><strong>Lote:</strong> {{ medicine.lote }}</p>
+                                <p><strong>Data de Fabricação:</strong> {{ medicine.fabricacao.strftime('%d/%m/%Y') }}</p>
+                                <p><strong>Data de Validade:</strong> {{ medicine.validade.strftime('%d/%m/%Y') }}</p>
+                                <p><strong>Fornecedor:</strong> {{ medicine.fornecedor }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<style>
+.modal-content {
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 15px 15px 0 0;
+}
+
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    border-radius: 0 0 15px 15px;
+}
+
+.card {
+    border: none;
+    box-shadow: none;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-subtitle {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.card-text {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn-outline-info {
+    color: #0dcaf0;
+    border-color: #0dcaf0;
+}
+
+.btn-outline-info:hover {
+    color: #fff;
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+}
+</style>
 {% endblock %}

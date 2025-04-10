@@ -1,4 +1,5 @@
 from app.models import models
+from app.routes.utils import getPagination
 from database.token import verify_token
 from fastapi import APIRouter, HTTPException, status, Depends, Request, Form
 from sqlalchemy.orm import Session
@@ -8,6 +9,8 @@ from app.schemas import schemas
 from database.database import get_db
 from fastapi.responses import RedirectResponse, HTMLResponse
 from app.utils.validators import validate_phone, format_phone
+from sqlalchemy import or_, cast
+from sqlalchemy.types import String
 
 router = APIRouter()
 
@@ -15,12 +18,33 @@ templates = Jinja2Templates(directory="templates")
 
 # clientes
 @router.get("/clientes", response_class=HTMLResponse)
-async def clientes(request: Request, db: Session = Depends(get_db)):
+async def clientes(request: Request, search: str = "", db: Session = Depends(get_db)):
     user = await verify_token(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="Usuário não autenticado")
-    clients = db.query(models.Client).all()
-    return templates.TemplateResponse("clientes.html", {"request": request, "clients": clients})
+    
+    # criando query
+    query = db.query(models.Client)
+
+    # aplicando filtro de pesquisa na query
+    if(search):
+        query = query.filter(
+            or_(
+                models.Client.name.ilike(f"%{search}%"),
+                models.Client.email.ilike(f"%{search}%"),
+                models.Client.phone.ilike(f"%{search}%"),
+                cast(models.Client.id, String).ilike(f"%{search}%"),
+            )
+        )
+
+    # passando a query para a funcao que pega os dados e a paginacao
+    clients, pagination = getPagination(query, request)
+
+    return templates.TemplateResponse("clientes.html", {
+        "request": request, 
+        "clients": clients,
+        "pagination": pagination
+    })
 
 @router.get("/clientes/adicionar", response_class=HTMLResponse)
 async def add_client_form(request: Request, db: Session = Depends(get_db)):
