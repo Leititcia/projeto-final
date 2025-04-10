@@ -3,50 +3,100 @@
 {% block content %}
 
 <div class="container mt-5">
-    <h1 class="display-4 text-primary text-center">Nova Venda</h1>
+    <h1 class="display-4 text-primary text-center fw-semibold">Nova Venda</h1>
     <hr class="border-primary border-2">
 
-    <form action="/vendas/adicionar" method="POST">
-        <div class="form-group">
-            <label for="client_id">Cliente</label>
-            <select id="client_id" name="client_id" class="form-control shadow-sm" required>
-                <option value="">Selecione um cliente</option>
-                {% for client in clients %}
-                <option value="{{ client.id }}">{{ client.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Adicionar Medicamento ao Carrinho</h5>
+                </div>
+                <div class="card-body">
+                    <form id="add-to-cart-form">
+                        <div class="form-group">
+                            <label for="medicine_id">Medicamento</label>
+                            <select id="medicine_id" name="medicine_id" class="form-control shadow-sm" required>
+                                <option value="">Selecione um medicamento</option>
+                                {% for medicine in medicines %}
+                                <option value="{{ medicine.id }}" data-price="{{ medicine.price }}" data-stock="{{ medicine.quantity }}">
+                                    {{ medicine.name }} - R$ {{ "%.2f"|format(medicine.price) }} (Estoque: {{ medicine.quantity }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
 
-        <div class="form-group mt-3">
-            <label for="medicine_id">Medicamento</label>
-            <select id="medicine_id" name="medicine_id" class="form-control shadow-sm" required>
-                <option value="">Selecione um medicamento</option>
-                {% for medicine in medicines %}
-                <option value="{{ medicine.id }}" data-price="{{ medicine.price }}" data-stock="{{ medicine.quantity }}">
-                    {{ medicine.name }} - R$ {{ "%.2f"|format(medicine.price) }} (Estoque: {{ medicine.quantity }})
-                </option>
-                {% endfor %}
-            </select>
-        </div>
+                        <div class="form-group mt-3">
+                            <label for="quantity">Quantidade</label>
+                            <input type="number" id="quantity" name="quantity" class="form-control shadow-sm" min="1" required>
+                            <small class="text-muted">Estoque disponível: <span id="stock-info">0</span></small>
+                        </div>
 
-        <div class="form-group mt-3">
-            <label for="quantity">Quantidade</label>
-            <input type="number" id="quantity" name="quantity" class="form-control shadow-sm" min="1" required>
-            <small class="text-muted">Estoque disponível: <span id="stock-info">0</span></small>
-        </div>
+                        <div class="form-group mt-3">
+                            <label>Preço Total</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                <input type="text" id="total_price" class="form-control" readonly>
+                            </div>
+                        </div>
 
-        <div class="form-group mt-3">
-            <label>Preço Total</label>
-            <div class="input-group">
-                <span class="input-group-text">R$</span>
-                <input type="text" id="total_price" class="form-control" readonly>
+                        <div class="form-group mt-3 text-center">
+                            <button type="button" id="add-to-cart-btn" class="btn btn-outline-primary btn-lg shadow-sm">
+                                <i class="bi bi-cart-plus"></i> Adicionar ao Carrinho
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
 
-        <div class="form-group mt-3 text-center">
-            <button type="submit" class="btn btn-outline-primary btn-lg shadow-sm">Finalizar Venda</button>
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Carrinho de Vendas</h5>
+                </div>
+                <div class="card-body">
+                    <div id="cart-items">
+                        <!-- Itens do carrinho serão adicionados aqui via JavaScript -->
+                        <p class="text-center text-muted" id="empty-cart-message">O carrinho está vazio</p>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <h5>Total:</h5>
+                        <h5 id="cart-total">R$ 0,00</h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Finalizar Venda</h5>
+                </div>
+                <div class="card-body">
+                    <form id="checkout-form" action="/vendas/adicionar" method="POST">
+                        <input type="hidden" name="client_id" id="client_id" required>
+                        <input type="hidden" name="cart_items" id="cart_items">
+                        
+                        <div class="form-group">
+                            <label for="client_select">Cliente</label>
+                            <select id="client_select" class="form-control shadow-sm" required>
+                                <option value="">Selecione um cliente</option>
+                                {% for client in clients %}
+                                <option value="{{ client.id }}">{{ client.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group mt-3 text-center">
+                            <button type="submit" id="checkout-btn" class="btn btn-success btn-lg shadow-sm" disabled>
+                                <i class="bi bi-check-circle"></i> Finalizar Venda
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
 
 <script>
@@ -55,6 +105,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const quantityInput = document.getElementById('quantity');
     const stockInfo = document.getElementById('stock-info');
     const totalPriceInput = document.getElementById('total_price');
+    const addToCartBtn = document.getElementById('add-to-cart-btn');
+    const cartItemsContainer = document.getElementById('cart-items');
+    const emptyCartMessage = document.getElementById('empty-cart-message');
+    const cartTotalElement = document.getElementById('cart-total');
+    const clientSelect = document.getElementById('client_select');
+    const clientIdInput = document.getElementById('client_id');
+    const cartItemsInput = document.getElementById('cart_items');
+    const checkoutBtn = document.getElementById('checkout-btn');
+    const checkoutForm = document.getElementById('checkout-form');
+
+    // Carrinho de itens
+    let cart = [];
 
     function updateStockAndPrice() {
         const selectedOption = medicineSelect.options[medicineSelect.selectedIndex];
@@ -72,9 +134,132 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function updateCartDisplay() {
+        cartItemsContainer.innerHTML = '';
+        
+        if (cart.length === 0) {
+            emptyCartMessage.style.display = 'block';
+            cartTotalElement.textContent = 'R$ 0,00';
+            checkoutBtn.disabled = true;
+            return;
+        }
+        
+        emptyCartMessage.style.display = 'none';
+        
+        let total = 0;
+        
+        cart.forEach((item, index) => {
+            const itemElement = document.createElement('div');
+            itemElement.className = 'card mb-2';
+            itemElement.innerHTML = `
+                <div class="card-body p-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">${item.name}</h6>
+                            <small class="text-muted">${item.quantity} x R$ ${item.price.toFixed(2)}</small>
+                        </div>
+                        <div>
+                            <span class="fw-bold">R$ ${(item.quantity * item.price).toFixed(2)}</span>
+                            <button type="button" class="btn btn-sm btn-outline-danger ms-2" data-index="${index}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            cartItemsContainer.appendChild(itemElement);
+            total += item.quantity * item.price;
+        });
+        
+        cartTotalElement.textContent = `R$ ${total.toFixed(2)}`;
+        checkoutBtn.disabled = false;
+        
+        // Atualizar o input hidden com os itens do carrinho
+        cartItemsInput.value = JSON.stringify(cart);
+    }
+
+    function addToCart() {
+        const selectedOption = medicineSelect.options[medicineSelect.selectedIndex];
+        if (!selectedOption.value) {
+            alert('Selecione um medicamento');
+            return;
+        }
+        
+        const quantity = parseInt(quantityInput.value);
+        if (!quantity || quantity < 1) {
+            alert('Informe uma quantidade válida');
+            return;
+        }
+        
+        const stock = parseInt(selectedOption.dataset.stock);
+        if (quantity > stock) {
+            alert('Quantidade maior que o estoque disponível');
+            return;
+        }
+        
+        const price = parseFloat(selectedOption.dataset.price);
+        const name = selectedOption.text.split(' - ')[0];
+        
+        // Verificar se o medicamento já está no carrinho
+        const existingItemIndex = cart.findIndex(item => item.id === parseInt(selectedOption.value));
+        
+        if (existingItemIndex >= 0) {
+            // Atualizar quantidade
+            cart[existingItemIndex].quantity += quantity;
+        } else {
+            // Adicionar novo item
+            cart.push({
+                id: parseInt(selectedOption.value),
+                name: name,
+                quantity: quantity,
+                price: price
+            });
+        }
+        
+        updateCartDisplay();
+        
+        // Limpar formulário
+        medicineSelect.selectedIndex = 0;
+        quantityInput.value = '';
+        updateStockAndPrice();
+    }
+
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        updateCartDisplay();
+    }
+
+    // Event Listeners
     medicineSelect.addEventListener('change', updateStockAndPrice);
     quantityInput.addEventListener('input', updateStockAndPrice);
+    addToCartBtn.addEventListener('click', addToCart);
+    
+    clientSelect.addEventListener('change', function() {
+        clientIdInput.value = this.value;
+    });
+    
+    cartItemsContainer.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-outline-danger')) {
+            const index = parseInt(e.target.closest('.btn-outline-danger').dataset.index);
+            removeFromCart(index);
+        }
+    });
+    
+    checkoutForm.addEventListener('submit', function(e) {
+        if (cart.length === 0) {
+            e.preventDefault();
+            alert('Adicione pelo menos um medicamento ao carrinho');
+            return;
+        }
+        
+        if (!clientIdInput.value) {
+            e.preventDefault();
+            alert('Selecione um cliente');
+            return;
+        }
+    });
 });
 </script>
 
-{% endblock %} 
+{% endblock %}

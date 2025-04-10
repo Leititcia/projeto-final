@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="container mt-5">
-    <h1 class="display-4 text-primary text-center">Lista de Vendas</h1>
+    <h1 class="display-4 text-primary text-center fw-semibold">Vendas</h1>
     <hr class="border-primary border-2">
     <div class="text-center mb-4">
         <a href="/vendas/adicionar" class="btn btn-outline-success btn-lg shadow-sm">Nova Venda</a>
@@ -14,66 +14,85 @@
             <tr>
                 <th>ID</th>
                 <th>Cliente</th>
-                <th>Medicamento</th>
-                <th>Quantidade</th>
+                <th>Itens</th>
                 <th>Preço Total</th>
                 <th>Data</th>
+                <th>Ações</th>
             </tr>
         </thead>
         <tbody>
-            {% for sale in sales %}
+            {% for order in orders %}
             <tr>
-                <td>{{ sale.id }}</td>
-                <td>{{ sale.client.name }}</td>
-                <td>{{ sale.medicine.name }}</td>
-                <td>{{ sale.quantity }}</td>
-                <td>R$ {{ "%.2f"|format(sale.total_price) }}</td>
-                <td>{{ sale.sale_date.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ order.id }}</td>
+                <td>{{ order.client.name }}</td>
+                <td>{{ order.items|length }} medicamento(s)</td>
+                <td>R$ {{ "%.2f"|format(order.total_price) }}</td>
+                <td>{{ order.order_date.strftime('%d/%m/%Y %H:%M') }}</td>
                 <td>
                     <button type="button" class="btn btn-outline-info btn-sm shadow-sm" 
-                            data-bs-toggle="modal" data-bs-target="#saleModal{{ sale.id }}">
+                            data-bs-toggle="modal" data-bs-target="#orderModal{{ order.id }}">
                         <i class="bi bi-eye"></i> Detalhes
                     </button>
                 </td>
             </tr>
-
-            <div class="modal fade" id="saleModal{{ sale.id }}" tabindex="-1" aria-labelledby="saleModalLabel{{ sale.id }}" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="saleModalLabel{{ sale.id }}">Detalhes da Venda #{{ sale.id }}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h6 class="card-subtitle mb-2 text-muted">Cliente</h6>
-                                    <p class="card-text">{{ sale.client.name }}</p>
-                                    
-                                    <h6 class="card-subtitle mb-2 text-muted">Medicamento</h6>
-                                    <p class="card-text">{{ sale.medicine.name }}</p>
-                                    
-                                    <h6 class="card-subtitle mb-2 text-muted">Quantidade</h6>
-                                    <p class="card-text">{{ sale.quantity }}</p>
-                                    
-                                    <h6 class="card-subtitle mb-2 text-muted">Preço Unitário</h6>
-                                    <p class="card-text">R$ {{ "%.2f"|format(sale.medicine.price) }}</p>
-                                    
-                                    <h6 class="card-subtitle mb-2 text-muted">Preço Total</h6>
-                                    <p class="card-text">R$ {{ "%.2f"|format(sale.total_price) }}</p>
-                                    
-                                    <h6 class="card-subtitle mb-2 text-muted">Data da Venda</h6>
-                                    <p class="card-text">{{ sale.sale_date.strftime('%d/%m/%Y %H:%M') }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+{% for order in orders %}
+<div class="modal fade" id="orderModal{{ order.id }}" tabindex="-1" aria-labelledby="orderModalLabel{{ order.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderModalLabel{{ order.id }}">Detalhes do Pedido #{{ order.id }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Cliente</h6>
+                        <p class="card-text">{{ order.client.name }}</p>
+                        
+                        <h6 class="card-subtitle mb-2 text-muted">Data do Pedido</h6>
+                        <p class="card-text">{{ order.order_date.strftime('%d/%m/%Y %H:%M') }}</p>
+                    </div>
+                </div>
+                
+                <h6 class="mb-3">Itens do Pedido</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Medicamento</th>
+                                <th>Quantidade</th>
+                                <th>Preço Unitário</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items %}
+                            <tr>
+                                <td>{{ item.medicine.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>R$ {{ "%.2f"|format(item.price) }}</td>
+                                <td>R$ {{ "%.2f"|format(item.quantity * item.price) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold">
+                                <td colspan="3" class="text-end">Total:</td>
+                                <td>R$ {{ "%.2f"|format(order.total_price) }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
 
 <style>
 .modal-content {

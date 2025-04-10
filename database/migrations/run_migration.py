@@ -61,11 +61,59 @@ def run_migration():
             CREATE TABLE IF NOT EXISTS medicines (
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(100) NOT NULL,
-                description TEXT,
+                generic_name VARCHAR(100),
+                manufacturer VARCHAR(100),
+                type VARCHAR(50),
+                pharmaceutical_form VARCHAR(50),
+                lote VARCHAR(50),
+                fabricacao DATE,
+                validade DATE,
+                fornecedor VARCHAR(100),
                 price FLOAT NOT NULL,
                 quantity INTEGER NOT NULL DEFAULT 0
             )
         """)
+
+        # Verificar se as colunas já existem e adicionar se necessário
+        cur.execute("""
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'medicines'
+        """)
+        existing_columns = [row[0] for row in cur.fetchall()]
+        
+        # Adiciona as novas colunas se não existirem
+        if 'generic_name' not in existing_columns:
+            cur.execute("ALTER TABLE medicines ADD COLUMN generic_name VARCHAR(100)")
+            print("Coluna 'generic_name' adicionada com sucesso!")
+        
+        if 'manufacturer' not in existing_columns:
+            cur.execute("ALTER TABLE medicines ADD COLUMN manufacturer VARCHAR(100)")
+            print("Coluna 'manufacturer' adicionada com sucesso!")
+        
+        if 'type' not in existing_columns:
+            cur.execute("ALTER TABLE medicines ADD COLUMN type VARCHAR(50)")
+            print("Coluna 'type' adicionada com sucesso!")
+        
+        if 'pharmaceutical_form' not in existing_columns:
+            cur.execute("ALTER TABLE medicines ADD COLUMN pharmaceutical_form VARCHAR(50)")
+            print("Coluna 'pharmaceutical_form' adicionada com sucesso!")
+            
+        if 'lote' not in existing_columns:
+            cur.execute("ALTER TABLE medicines ADD COLUMN lote VARCHAR(50)")
+            print("Coluna 'lote' adicionada com sucesso!")
+            
+        if 'fabricacao' not in existing_columns:
+            cur.execute("ALTER TABLE medicines ADD COLUMN fabricacao DATE")
+            print("Coluna 'fabricacao' adicionada com sucesso!")
+            
+        if 'validade' not in existing_columns:
+            cur.execute("ALTER TABLE medicines ADD COLUMN validade DATE")
+            print("Coluna 'validade' adicionada com sucesso!")
+            
+        if 'fornecedor' not in existing_columns:
+            cur.execute("ALTER TABLE medicines ADD COLUMN fornecedor VARCHAR(100)")
+            print("Coluna 'fornecedor' adicionada com sucesso!")
 
         # Criar tabela de vendas
         cur.execute("""
