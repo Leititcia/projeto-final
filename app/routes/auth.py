@@ -8,6 +8,7 @@ from database.token import verify_token, create_access_token
 from database.auth_user import UserUseCases
 from app.models import models
 from passlib.context import CryptContext
+from urllib.parse import quote
 
 router = APIRouter()
 
@@ -26,9 +27,10 @@ async def login(
 ):
     user = db.query(models.UserModel).filter(models.UserModel.username == username).first()
     if not user or not pwd_context.verify(password, user.password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuário ou senha incorretos"
+        error_message = "Usuário ou senha incorretos"
+        return RedirectResponse(
+            url=f"/login?error={quote(error_message)}", 
+            status_code=status.HTTP_303_SEE_OTHER
         )
     
     access_token = create_access_token(data={"sub": user.username})
@@ -48,15 +50,17 @@ async def registro(
     db: Session = Depends(get_db)
 ):
     if senha != confirmar_senha:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="As senhas não coincidem"
+        error_message = "As senhas não coincidem"
+        return RedirectResponse(
+            url=f"/registro?error={quote(error_message)}", 
+            status_code=status.HTTP_303_SEE_OTHER
         )
     
     if db.query(models.UserModel).filter(models.UserModel.username == nome_usuario).first():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Nome de usuário já existe"
+        error_message = "Nome de usuário já existe"
+        return RedirectResponse(
+            url=f"/registro?error={quote(error_message)}", 
+            status_code=status.HTTP_303_SEE_OTHER
         )
     
     hashed_password = pwd_context.hash(senha)
